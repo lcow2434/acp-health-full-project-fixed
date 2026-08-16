@@ -1,0 +1,9 @@
+{
+  "name": "acp-health-project",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Run this to preview the frontend prototypes — no dependencies, no setup required.",
+  "scripts": {
+    "start": "node serve-frontend.js"
+  }
+}

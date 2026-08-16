@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ACP Health — Talk Through It</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F1E6;
+    --surface:#FFFDF9;
+    --surface-glass:rgba(255,253,249,.72);
+    --ink:#1E2A28;
+    --ink-soft:#5B6A66;
+    --teal:#1F6F65;
+    --teal-deep:#123F3A;
+    --teal-mist:#E7F1EE;
+    --coral:#E86F51;
+    --coral-soft:#FBE7E0;
+    --sage:#BFD8CC;
+    --gold:#E7B75F;
+    --line:rgba(30,42,40,.10);
+    --green:#3F8F5F; --green-soft:#E7F4EB;
+    --amber:#C98A24; --amber-soft:#FBF0DC;
+    --red:#C64B3E; --red-soft:#FBE5E1;
+    --shadow:0 10px 30px -12px rgba(18,63,58,.18);
+    --shadow-lift:0 18px 40px -14px rgba(18,63,58,.28);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    color:var(--ink);font-family:'IBM Plex Sans',sans-serif;
+    background:
+      radial-gradient(ellipse 900px 600px at 8% -5%, #DCEEE7 0%, transparent 55%),
+      radial-gradient(ellipse 700px 700px at 100% 10%, #FCE3D6 0%, transparent 50%),
+      radial-gradient(ellipse 800px 800px at 15% 105%, #F0E2C4 0%, transparent 55%),
+      var(--bg);
+    background-attachment:fixed;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:radial-gradient(circle, rgba(30,42,40,.045) 1px, transparent 1px);
+    background-size:22px 22px;
+  }
+  .app{max-width:1180px;margin:0 auto;padding:30px 24px 90px;position:relative;z-index:1;}
+
+  /* ambient pulse line across whole page top */
+  .ambient-pulse{position:fixed;top:0;left:0;width:100%;height:90px;pointer-events:none;z-index:0;opacity:.5;}
+  .ambient-pulse path{fill:none;stroke:var(--sage);stroke-width:1.5;}
+
+  /* header */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:13px;}
+  .brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg, var(--teal), var(--teal-deep));display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--shadow);transform:rotate(-4deg);transition:transform .3s ease;}
+  .brand-mark:hover{transform:rotate(0deg) scale(1.05);}
+  .brand-mark svg{width:22px;height:22px;}
+  .brand-name{font-family:'Fraunces',serif;font-size:21px;font-weight:600;letter-spacing:-0.01em;}
+  .brand-sub{font-size:11.5px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;}
+  .disclaimer-pill{font-size:12px;color:var(--teal-deep);background:var(--surface-glass);backdrop-filter:blur(8px);padding:8px 15px;border-radius:100px;border:1px solid var(--line);display:flex;align-items:center;gap:6px;box-shadow:var(--shadow);}
+
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;align-items:start;}
+  @media (max-width:880px){.grid{grid-template-columns:1fr;}}
+
+  .card{
+    background:var(--surface-glass);backdrop-filter:blur(10px);
+    border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);
+    transition:box-shadow .3s ease, transform .3s ease;
+  }
+
+  /* chat */
+  .chat-card{padding:0;overflow:hidden;}
+  .chat-head{padding:20px 22px;border-bottom:1px solid var(--line);background:linear-gradient(120deg, rgba(191,216,204,.35), rgba(252,227,214,.3));}
+  .chat-head h2{font-family:'Fraunces',serif;font-size:19px;margin:0 0 4px;font-weight:600;}
+  .chat-head p{margin:0;font-size:13px;color:var(--ink-soft);}
+  .chat-log{padding:22px;min-height:340px;max-height:440px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;}
+  .msg{max-width:82%;padding:12px 15px;border-radius:16px;font-size:14.5px;line-height:1.5;animation:rise .35s cubic-bezier(.2,.8,.2,1) both;}
+  @keyframes rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .msg.bot{background:linear-gradient(135deg,var(--teal-mist),#EFF6F1);color:var(--teal-deep);align-self:flex-start;border-bottom-left-radius:5px;box-shadow:0 3px 10px -4px rgba(31,111,101,.25);}
+  .msg.user{background:linear-gradient(135deg,var(--ink),#0F1918);color:#fff;align-self:flex-end;border-bottom-right-radius:5px;box-shadow:0 3px 10px -4px rgba(0,0,0,.3);}
+
+  .quick-replies{padding:0 22px 18px;display:flex;flex-wrap:wrap;gap:9px;}
+  .qr-btn{font-family:inherit;font-size:13px;padding:9px 15px;border-radius:100px;border:1.5px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;transition:.2s;font-weight:500;}
+  .qr-btn:hover{border-color:var(--coral);color:var(--coral);background:var(--coral-soft);transform:translateY(-2px);box-shadow:0 6px 14px -6px rgba(232,111,81,.4);}
+  .qr-btn:disabled{opacity:.35;cursor:default;transform:none;box-shadow:none;}
+
+  .chat-input-row{display:flex;gap:9px;padding:16px 22px;border-top:1px solid var(--line);}
+  .chat-input-row input{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;font-family:inherit;font-size:14px;background:#fff;}
+  .chat-input-row input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(31,111,101,.15);}
+  .send-btn{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border:none;border-radius:12px;padding:0 20px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:transform .15s;}
+  .send-btn:hover{transform:scale(1.04);}
+  .send-btn:active{transform:scale(.97);}
+
+  .right-col{display:flex;flex-direction:column;gap:18px;}
+
+  .pulse-card{padding:28px 24px;text-align:center;overflow:hidden;position:relative;}
+  .pulse-card h3{font-family:'Fraunces',serif;font-size:16.5px;margin:0 0 16px;font-weight:600;color:var(--ink-soft);}
+  .pulse-svg{width:100%;height:68px;}
+  .pulse-path{fill:none;stroke:var(--sage);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+  .pulse-path.active{stroke:var(--coral);stroke-dasharray:400;stroke-dashoffset:400;animation:draw 1.5s ease forwards infinite;filter:drop-shadow(0 2px 6px rgba(232,111,81,.4));}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .waiting-label{font-size:12.5px;color:var(--ink-soft);margin-top:8px;}
+
+  .tier-card{padding:24px;display:none;animation:popIn .55s cubic-bezier(.2,.8,.2,1) both;position:relative;overflow:hidden;}
+  .tier-card.show{display:block;}
+  .tier-card::before{content:'';position:absolute;top:-40%;right:-20%;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, var(--tier-glow, transparent) 0%, transparent 70%);pointer-events:none;}
+  @keyframes popIn{0%{opacity:0;transform:scale(.92) translateY(10px);}60%{transform:scale(1.02);}100%{opacity:1;transform:scale(1) translateY(0);}}
+  .tier-badge{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:7px 14px;border-radius:100px;margin-bottom:13px;}
+  .tier-badge.green{background:var(--green-soft);color:var(--green);}
+  .tier-badge.amber{background:var(--amber-soft);color:var(--amber);}
+  .tier-badge.red{background:var(--red-soft);color:var(--red);}
+  .tier-badge .dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.4s ease infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .tier-title{font-family:'Fraunces',serif;font-size:21px;font-weight:600;margin:0 0 9px;}
+  .tier-desc{font-size:14px;color:var(--ink-soft);line-height:1.55;margin:0 0 17px;}
+  .tier-actions{display:flex;gap:9px;flex-wrap:wrap;}
+  .btn{font-family:inherit;font-size:13.5px;font-weight:600;padding:10px 16px;border-radius:11px;border:none;cursor:pointer;transition:transform .15s, box-shadow .15s;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn-primary{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;box-shadow:0 6px 16px -6px rgba(31,111,101,.5);}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line);}
+
+  .section-card{padding:22px 24px;display:none;animation:rise .5s cubic-bezier(.2,.8,.2,1) both;}
+  .section-card.show{display:block;}
+  .section-card:hover{box-shadow:var(--shadow-lift);}
+  .section-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .section-icon{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .section-title{font-family:'Fraunces',serif;font-size:16px;font-weight:600;margin:0;}
+  .section-sub{font-size:12px;color:var(--ink-soft);margin:1px 0 0;}
+
+  .remedy-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .remedy-list li{font-size:13.5px;line-height:1.5;padding:12px 14px;background:linear-gradient(120deg,#FBFAF6,#F7F3EA);border-radius:12px;border:1px solid var(--line);transition:transform .15s;}
+  .remedy-list li:hover{transform:translateX(3px);}
+  .remedy-tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--teal);margin-right:8px;}
+
+  .med-locked{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(120deg,var(--coral-soft),#FDF1EA);border:1px solid #F3D2C5;border-radius:14px;padding:15px;}
+  .med-locked svg{flex-shrink:0;margin-top:2px;}
+  .med-locked p{margin:0;font-size:13px;line-height:1.5;color:#8A3F2E;}
+
+  .med-unlock-form{display:flex;gap:8px;margin-top:10px;}
+  .med-unlock-form input{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:13.5px;background:#fff;}
+  .med-unlock-form input:focus{outline:none;border-color:var(--coral);}
+  .med-result{margin-top:12px;padding:14px;background:var(--green-soft);border-radius:12px;border:1px solid #CFE6D6;font-size:13px;line-height:1.55;display:none;}
+  .med-result.show{display:block;animation:rise .4s ease both;}
+
+  .clinic-item{display:flex;gap:12px;padding:12px;border-radius:14px;transition:.2s;align-items:center;}
+  .clinic-item:hover{background:#fff;box-shadow:var(--shadow);transform:translateY(-1px);}
+  .clinic-thumb{width:52px;height:52px;border-radius:11px;object-fit:cover;flex-shrink:0;background:var(--sage);}
+  .clinic-thumb-fallback{width:52px;height:52px;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,var(--teal-mist),var(--sage));display:flex;align-items:center;justify-content:center;}
+  .clinic-body{flex:1;min-width:0;}
+  .clinic-name{font-size:13.5px;font-weight:600;}
+  .clinic-meta{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .clinic-rating{font-size:12px;font-weight:700;color:var(--gold);white-space:nowrap;display:flex;align-items:center;gap:3px;}
+
+  .doc-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--ink),#0A1211);color:#fff;border:none;border-radius:12px;padding:13px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;margin-top:14px;transition:transform .15s;}
+  .doc-btn:hover{transform:translateY(-2px);}
+
+  .fine-print{font-size:11px;color:var(--ink-soft);line-height:1.6;padding:18px 24px;}
+  .fine-print strong{color:var(--ink);}
+
+  /* ---- Beta gate ---- */
+  .app{display:none;}
+  .app.unlocked{display:block;}
+  .gate-overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:
+      radial-gradient(ellipse 900px 600px at 8% -5%, #DCEEE7 0%, transparent 55%),
+      radial-gradient(ellipse 700px 700px at 100% 10%, #FCE3D6 0%, transparent 50%),
+      var(--bg);}
+  .gate-overlay.hidden{display:none;}
+  .gate-card{max-width:480px;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-lift);padding:32px;}
+  .gate-badge{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--coral);background:var(--coral-soft);padding:6px 13px;border-radius:100px;margin-bottom:16px;}
+  .gate-card h1{font-family:'Fraunces',serif;font-size:24px;margin:0 0 8px;font-weight:600;}
+  .gate-card > p{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 20px;}
+  .gate-warning{background:var(--red-soft);border:1px solid #F1C6BF;border-radius:13px;padding:14px 16px;margin-bottom:20px;}
+  .gate-warning p{margin:0;font-size:12.5px;line-height:1.6;color:#8A2F24;}
+  .gate-warning strong{color:#6E1F17;}
+  .gate-field{margin-bottom:14px;}
+  .gate-field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+  .gate-field input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;font-family:inherit;font-size:14px;background:#fff;}
+  .gate-field input[type=text]:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(31,111,101,.15);}
+  .gate-check{display:flex;gap:10px;align-items:flex-start;margin:16px 0 20px;font-size:12.5px;line-height:1.55;color:var(--ink-soft);}
+  .gate-check input{margin-top:3px;flex-shrink:0;}
+  .gate-enter-btn{width:100%;background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;border:none;border-radius:12px;padding:13px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:transform .15s;}
+  .gate-enter-btn:hover{transform:translateY(-2px);}
+  .gate-enter-btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .gate-error{font-size:12px;color:var(--red);margin-top:8px;display:none;}
+  .gate-error.show{display:block;}
+  .gate-foot{font-size:11px;color:var(--ink-soft);text-align:center;margin-top:16px;}
+
+  .beta-ribbon{position:fixed;top:14px;right:-46px;transform:rotate(40deg);background:var(--coral);color:#fff;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:5px 60px;z-index:40;box-shadow:0 4px 10px rgba(0,0,0,.2);}
+
+  /* view switcher */
+  .view-switch{display:flex;gap:6px;background:var(--surface-glass);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:100px;padding:4px;margin-bottom:20px;width:fit-content;}
+  .view-switch button{font-family:inherit;font-size:12.5px;font-weight:600;padding:8px 16px;border-radius:100px;border:none;background:transparent;color:var(--ink-soft);cursor:pointer;transition:.2s;}
+  .view-switch button.active{background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;box-shadow:var(--shadow);}
+  .view-panel{display:none;}
+  .view-panel.active{display:block;}
+
+  /* clinician view */
+  .queue-item{background:var(--surface-glass);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .queue-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .queue-tier{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:5px 12px;border-radius:100px;}
+  .queue-time{font-size:11.5px;color:var(--ink-soft);}
+  .queue-inputs{font-size:13px;color:var(--ink-soft);margin-bottom:12px;line-height:1.6;background:var(--bg);border-radius:10px;padding:10px 12px;}
+  .queue-inputs b{color:var(--ink);}
+  .queue-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .queue-select{border:1.5px solid var(--line);border-radius:9px;padding:8px 10px;font-family:inherit;font-size:13px;background:#fff;}
+  .empty-queue{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:13.5px;}
+  .reviewed-tag{font-size:11px;font-weight:700;color:var(--green);background:var(--green-soft);padding:5px 12px;border-radius:100px;}
+
+  /* doctor booking */
+  .doctor-row{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:12px;border:1px solid var(--line);margin-bottom:14px;}
+  .doctor-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;font-size:16px;flex-shrink:0;}
+  .doctor-name{font-size:14px;font-weight:600;}
+  .doctor-spec{font-size:12px;color:var(--ink-soft);}
+  .fee-breakdown{background:var(--bg);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
+  .fee-row{display:flex;justify-content:space-between;font-size:13px;padding:5px 0;color:var(--ink-soft);}
+  .fee-row.total{border-top:1px solid var(--line);margin-top:6px;padding-top:10px;font-weight:600;color:var(--ink);font-size:14.5px;}
+  .pay-btn{width:100%;background:linear-gradient(135deg,var(--coral),#D65A38);color:#fff;border:none;border-radius:12px;padding:13px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;transition:transform .15s;}
+  .pay-btn:hover{transform:translateY(-2px);}
+  .pay-btn:disabled{opacity:.6;cursor:wait;transform:none;}
+  .ticket-box{display:none;margin-top:16px;border:1.5px dashed var(--teal);border-radius:14px;padding:16px;background:var(--teal-mist);animation:popIn .5s cubic-bezier(.2,.8,.2,1) both;}
+  .ticket-box.show{display:block;}
+  .ticket-row{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;color:var(--teal-deep);}
+  .ticket-row b{color:var(--teal-deep);}
+  .zoom-link{display:inline-block;margin-top:8px;font-size:13px;font-weight:600;color:var(--teal-deep);background:#fff;padding:8px 12px;border-radius:9px;border:1px solid #CFE6DF;word-break:break-all;}
+  .email-preview{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+  .email-preview .ep-head{font-size:11px;color:var(--ink-soft);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--line);}
+  .email-preview .ep-body{font-size:12.5px;line-height:1.6;color:var(--ink);}
+
+  .appt-item{background:var(--surface-glass);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .appt-head{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:6px;}
+  .appt-meta{font-size:12px;color:var(--ink-soft);line-height:1.6;}
+  .status-pill{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:4px 10px;border-radius:100px;background:var(--green-soft);color:var(--green);}
+</style>
+</head>
+<body>
+
+<div class="beta-ribbon" id="betaRibbon" style="display:none;">Private beta</div>
+
+<div class="gate-overlay" id="gateOverlay">
+  <div class="gate-card">
+    <span class="gate-badge">● Private beta — invite only</span>
+    <h1>Before you try ACP Health</h1>
+    <p>This is an early, unreviewed pilot. It's being shared with a small group so we can learn — not a finished medical product.</p>
+
+    <div class="gate-warning">
+      <p><strong>Please read:</strong> The guidance in this pilot has not yet been reviewed or approved by a licensed medical professional. It does not diagnose conditions and does not prescribe medication. Do not rely on it for real medical decisions. If you are experiencing a medical emergency, call your local emergency number now — do not use this tool.</p>
+    </div>
+
+    <div class="gate-field">
+      <label for="inviteCode">Invite code</label>
+      <input type="text" id="inviteCode" placeholder="Enter the code you were given" autocomplete="off" />
+    </div>
+
+    <label class="gate-check">
+      <input type="checkbox" id="agreeCheck" />
+      <span>I understand this is an unreviewed pilot, I will not use it for real medical decisions or emergencies, and I agree to the Terms &amp; Conditions and Medical Disclaimer.</span>
+    </label>
+
+    <button class="gate-enter-btn" id="enterBtn" disabled>Enter pilot</button>
+    <div class="gate-error" id="gateError">That code isn't recognized — check with whoever invited you.</div>
+    <p class="gate-foot">Access is limited while we work with a clinical advisor on the next version.</p>
+  </div>
+</div>
+
+<svg class="ambient-pulse" viewBox="0 0 1200 90" preserveAspectRatio="none">
+  <path d="M0 45 L200 45 L230 15 L260 75 L290 45 L500 45 L530 20 L560 70 L590 45 L1200 45" />
+</svg>
+
+<div class="app" id="mainApp">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"></path></svg>
+      </div>
+      <div>
+        <div class="brand-name">ACP Health</div>
+        <div class="brand-sub">Talk through it</div>
+      </div>
+    </div>
+    <div class="disclaimer-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Informational demo — not medical advice
+    </div>
+  </div>
+
+  <div class="view-switch" id="viewSwitch">
+    <button class="active" data-view="patient">Patient view</button>
+    <button data-view="clinician">Clinician review queue</button>
+    <button data-view="appointments">Appointments (ops view)</button>
+  </div>
+
+  <div class="view-panel active" id="patientView">
+  <div class="grid">
+    <div class="card chat-card">
+      <div class="chat-head">
+        <h2>Tell me what's going on</h2>
+        <p>Describe your symptoms in your own words — I'll ask a few follow-ups.</p>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="quick-replies" id="quickReplies"></div>
+      <div class="chat-input-row">
+        <input id="chatInput" type="text" placeholder="Type here, or use a suggestion above…" />
+        <button class="send-btn" id="sendBtn">Send</button>
+      </div>
+    </div>
+
+    <div class="right-col">
+
+      <div class="card pulse-card" id="pulseCard">
+        <h3 id="pulseLabel">Waiting to hear from you</h3>
+        <svg class="pulse-svg" viewBox="0 0 300 60">
+          <path class="pulse-path" id="pulsePath" d="M0 30 L90 30 L105 8 L120 52 L135 30 L300 30" />
+        </svg>
+        <div class="waiting-label" id="waitingLabel">Your urgency level will appear here once we've talked it through</div>
+      </div>
+
+      <div class="card tier-card" id="tierCard">
+        <span class="tier-badge" id="tierBadge"><span class="dot"></span><span id="tierBadgeText"></span></span>
+        <h3 class="tier-title" id="tierTitle"></h3>
+        <p class="tier-desc" id="tierDesc"></p>
+        <div class="tier-actions">
+          <button class="btn btn-primary" id="findCareBtn">Find nearby care</button>
+          <button class="btn btn-ghost" id="restartBtn">Start over</button>
+        </div>
+      </div>
+
+      <div class="card section-card" id="selfCareCard">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--green-soft);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 1 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div>
+            <p class="section-title">General self-care reference</p>
+            <p class="section-sub">Common, non-personalized options — not a prescription</p>
+          </div>
+        </div>
+        <ul class="remedy-list" id="remedyList"></ul>
+      </div>
+
+      <div class="card section-card" id="medCard">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--coral-soft);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div>
+            <p class="section-title">Medicine reference</p>
+            <p class="section-sub">Unlocks once a doctor has actually prescribed something</p>
+          </div>
+        </div>
+        <div class="med-locked">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A3F2E" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div>
+            <p>Given your level, this isn't something to self-medicate for — please see a doctor first. Once they've prescribed something, tell me the name here and I'll explain what it's for, in plain language, as a reference only.</p>
+            <div class="med-unlock-form">
+              <input type="text" id="medInput" placeholder="e.g. Amoxicillin, Cetirizine…" />
+              <button class="btn btn-primary" id="medUnlockBtn">Look up</button>
+            </div>
+            <div class="med-result" id="medResult"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card section-card" id="clinicCard">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--teal-mist);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <p class="section-title">Nearby, well-reviewed care</p>
+            <p class="section-sub">Live listings near Chatham, ON — real data</p>
+          </div>
+        </div>
+        <div id="clinicList"></div>
+        <button class="doc-btn" id="downloadBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download visit-prep summary
+        </button>
+      </div>
+
+      <div class="card section-card" id="bookConsultCard">
+        <div class="section-head">
+          <div class="section-icon" style="background:var(--coral-soft);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+          </div>
+          <div>
+            <p class="section-title">Talk to a doctor now — video call</p>
+            <p class="section-sub">Real licensed doctor · booked and paid through ACP Health</p>
+          </div>
+        </div>
+        <div id="doctorMatch"></div>
+        <div class="fee-breakdown" id="feeBreakdown"></div>
+        <button class="pay-btn" id="payBtn">Confirm & pay (demo)</button>
+        <div class="ticket-box" id="ticketBox"></div>
+      </div>
+
+      <div class="card" style="padding:0;">
+        <p class="fine-print">
+          <strong>Disclaimer:</strong> This tool gives general information and urgency guidance only. It does not diagnose conditions or prescribe medication, and it can make mistakes. Always use your own judgment and consult a licensed doctor — sooner if anything feels seriously wrong. By continuing, you agree to our Terms &amp; Conditions and acknowledge this is not a substitute for professional medical care.
+        </p>
+      </div>
+
+    </div>
+  </div>
+  </div>
+
+  <div class="view-panel" id="clinicianView">
+    <div class="card" style="padding:22px 24px;margin-bottom:16px;">
+      <div class="section-head" style="margin-bottom:4px;">
+        <div class="section-icon" style="background:var(--teal-mist);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <p class="section-title">Pending triage decisions</p>
+          <p class="section-sub">This is the human-in-the-loop review — how the rules actually improve over time</p>
+        </div>
+      </div>
+    </div>
+    <div id="reviewQueue"></div>
+  </div>
+
+  <div class="view-panel" id="appointmentsView">
+    <div class="card" style="padding:22px 24px;margin-bottom:16px;">
+      <div class="section-head" style="margin-bottom:4px;">
+        <div class="section-icon" style="background:var(--coral-soft);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+        </div>
+        <div>
+          <p class="section-title">Booked consultations</p>
+          <p class="section-sub">What a real ops dashboard would show after webhook confirmation</p>
+        </div>
+      </div>
+    </div>
+    <div id="appointmentsList"></div>
+  </div>
+</div>
+
+<script>
+const chatLog = document.getElementById('chatLog');
+const quickReplies = document.getElementById('quickReplies');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const pulsePath = document.getElementById('pulsePath');
+const pulseLabel = document.getElementById('pulseLabel');
+const waitingLabel = document.getElementById('waitingLabel');
+const tierCard = document.getElementById('tierCard');
+const tierBadge = document.getElementById('tierBadge');
+const tierBadgeText = document.getElementById('tierBadgeText');
+const tierTitle = document.getElementById('tierTitle');
+const tierDesc = document.getElementById('tierDesc');
+const selfCareCard = document.getElementById('selfCareCard');
+const remedyList = document.getElementById('remedyList');
+const medCard = document.getElementById('medCard');
+const clinicCard = document.getElementById('clinicCard');
+const clinicList = document.getElementById('clinicList');
+
+let step = 0;
+let answers = {};
+
+function addMsg(text, who){
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chatLog.appendChild(div);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function setQuickReplies(options){
+  quickReplies.innerHTML = '';
+  options.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className = 'qr-btn';
+    b.textContent = opt;
+    b.onclick = ()=> handleUserInput(opt);
+    quickReplies.appendChild(b);
+  });
+}
+
+const flow = [
+  { bot: "Hi — I'm here to help you figure out what kind of care you might need. What's the main thing you're noticing right now?",
+    options: ["Fever & body ache", "Cough / cold symptoms", "Stomach pain or nausea", "Chest tightness or pain"] },
+  { options: ["Just started today", "2-3 days", "About a week", "More than a week"] },
+  { options: ["Mild — I can go about my day", "Moderate — it's slowing me down", "Severe — hard to function", "It's scary / getting worse fast"] }
+];
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function botMessageForStep(nextStep){
+  if(nextStep === 1){
+    const templates = [
+      `Got it — ${answers.step0.toLowerCase()}. How long has this been going on?`,
+      `Okay, noted: ${answers.step0.toLowerCase()}. When did it start?`,
+      `Thanks for sharing that. How long have you been dealing with ${answers.step0.toLowerCase()}?`
+    ];
+    return pick(templates);
+  }
+  if(nextStep === 2){
+    const templates = [
+      `And with it being ${answers.step1.toLowerCase()}, how bad does it feel right now?`,
+      `Okay. On a gut-check level, how intense is it at this point?`,
+      `Understood. How would you rate how it feels right now?`
+    ];
+    return pick(templates);
+  }
+  return '';
+}
+
+function handleUserInput(text){
+  if(!text.trim()) return;
+  addMsg(text, 'user');
+  chatInput.value = '';
+  answers['step'+step] = text;
+  step++;
+  if(step < flow.length){
+    setTimeout(()=>{ addMsg(botMessageForStep(step), 'bot'); setQuickReplies(flow[step].options); }, 450);
+  } else {
+    setQuickReplies([]);
+    const closers = ["Thanks — let me sort through that.", "Got it, one moment while I work through this.", "Okay, give me just a second to sort this out."];
+    setTimeout(()=>{ addMsg(pick(closers), 'bot'); runTriage(); }, 450);
+  }
+}
+
+sendBtn.onclick = ()=> handleUserInput(chatInput.value);
+chatInput.addEventListener('keydown', e=>{ if(e.key==='Enter') handleUserInput(chatInput.value); });
+
+let currentTriage = null;
+
+function runTriage(){
+  pulsePath.classList.add('active');
+  pulseLabel.textContent = "Sorting through what you've shared…";
+  waitingLabel.textContent = "This takes a moment";
+  setTimeout(async ()=>{
+    const inputs = {
+      primarySymptom: answers.step0 || '',
+      duration: answers.step1 || '',
+      severity: answers.step2 || ''
+    };
+    // Same call shape as POST /api/conversations/:id/triage in the real backend —
+    // here it writes to persistent storage instead of Postgres, and the result
+    // immediately becomes visible in the Clinician review queue tab.
+    const result = await persistTriage(inputs);
+    currentTriage = { ...result, inputs };
+    const tierColorMap = { emergency:'red', urgent:'amber', self_care:'green' };
+    showTier(tierColorMap[result.tier]);
+  }, 1700);
+}
+
+const tierGlow = { green:'#3F8F5F33', amber:'#C98A2433', red:'#C64B3E33' };
+
+const tierContent = {
+  green: { label:'Self-care level', title:"This sounds manageable at home",
+    desc:"Based on what you've shared, this is likely something you can manage yourself for now. Keep an eye on it — if it changes or gets worse, that changes things.",
+    remedies:[
+      ['Rest','Give your body time — this is often the biggest factor in recovery.'],
+      ['Fluids','Water, ORS, or warm fluids help more than most people expect.'],
+      ['Common OTC options','Things like paracetamol for fever/aches are widely used — check the label and with a pharmacist for your situation.'],
+      ["Watch for change","If symptoms worsen, spread, or don't improve in a few days, move up to seeing a doctor."]
+    ]},
+  amber: { label:'See a doctor soon', title:"Worth getting checked — not an emergency",
+    desc:"This isn't something to just wait out. It's a good idea to see a doctor within the next day or so rather than self-treating further.",
+    remedies:[
+      ['Rest & fluids','Keep supporting your body while you arrange a visit.'],
+      ['Track it','Note when things started and anything that makes it better or worse — bring this to the doctor.'],
+      ["Avoid stacking medication","Don't combine multiple OTC drugs without asking a pharmacist — it can mask what's actually going on."]
+    ]},
+  red: { label:'Urgent — seek care now', title:"Please get to care now, don't wait",
+    desc:"What you're describing includes signs that need medical attention right away. If this feels severe or sudden, consider calling emergency services rather than driving yourself.",
+    remedies:[
+      ["Don't self-medicate",'No home remedy is appropriate here — the priority is getting seen.'],
+      ['Sit upright, stay calm','If breathing or chest symptoms are involved, avoid lying flat.'],
+      ["Have someone with you","If possible, don't go alone — bring someone or call for help."]
+    ]}
+};
+
+// Real clinic data (live-pulled near Chatham, ON) for the demo
+const clinics = [
+  { name:'Apollo Walk In Clinic & Medical Centre', meta:'Open until 8PM most weekdays · 1.1 mi', rating:4.4, photo:'https://lh3.googleusercontent.com/place-photos/AJRVUZOGn5PjGVWsjtbKXqz1YY1PpoEcSM7rU3p28ir6PxrnUZZ9AYM8KOjpcpoQFXoqswdYkF76QUr7SqxOLCbJPaYgwFwm0c5mrxgBkWyuHe2wWaC85l2xVhYIgmIDMUtJurf1QDNxij-aJr08LZbZC4KJ=s4800-w800-h600' },
+  { name:'Thamesview Centre for Family Medicine', meta:'Strong reviews for follow-up care · 2.0 mi', rating:4.4, photo:'https://lh3.googleusercontent.com/place-photos/AJRVUZP1JkNQ_F4i-cSztEUY-Ha7y-gGBpEPyqpsSzLfOWxTFQS8Sqt8igvJHiTZkAO3LTQaJPBdcykLqMsnZ-FsnbuV_1KxFsKzyTEtfXiwfSEILmphwW9GYNB9TXdepnClp6XP4moOZpcnnNWTIOE=s4800-w800-h600' },
+  { name:'Chatham-Kent Community Health Centres', meta:'Community clinic · extended evenings · 1.6 mi', rating:3.8, photo:null },
+  { name:'Dr. McCulloch, MD — Family Medicine', meta:'May be accepting new patients · 2.4 mi', rating:5.0, photo:null }
+];
+
+function showTier(tier){
+  pulsePath.classList.remove('active');
+  document.getElementById('pulseCard').style.display = 'none';
+  tierCard.style.setProperty('--tier-glow', tierGlow[tier]);
+
+  const c = tierContent[tier];
+  tierBadge.className = 'tier-badge ' + tier;
+  tierBadgeText.textContent = c.label;
+  tierTitle.textContent = c.title;
+  tierDesc.textContent = c.desc;
+  tierCard.classList.add('show');
+
+  remedyList.innerHTML = '';
+  c.remedies.forEach(([tag, text])=>{
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="remedy-tag">'+tag+'</span>'+text;
+    remedyList.appendChild(li);
+  });
+  setTimeout(()=> selfCareCard.classList.add('show'), 200);
+  setTimeout(()=> medCard.classList.add('show'), 350);
+  setTimeout(()=> clinicCard.classList.add('show'), 500);
+  setTimeout(()=> { document.getElementById('bookConsultCard').classList.add('show'); renderDoctorMatch(); }, 650);
+
+  clinicList.innerHTML = '';
+  clinics.forEach(cl=>{
+    const div = document.createElement('div');
+    div.className = 'clinic-item';
+    const thumb = cl.photo
+      ? '<img class="clinic-thumb" src="'+cl.photo+'" alt="">'
+      : '<div class="clinic-thumb-fallback"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>';
+    div.innerHTML = thumb + '<div class="clinic-body"><div class="clinic-name">'+cl.name+'</div><div class="clinic-meta">'+cl.meta+'</div></div><div class="clinic-rating">★ '+cl.rating.toFixed(1)+'</div>';
+    clinicList.appendChild(div);
+  });
+
+  const readyMsgs = ["I've put together your summary on the right — take a look.", "Here's what I found — check the panel on the right.", "Alright, I've laid out your options on the right side."];
+  addMsg(pick(readyMsgs), 'bot');
+}
+
+document.getElementById('restartBtn').onclick = ()=> location.reload();
+document.getElementById('findCareBtn').onclick = ()=> clinicCard.scrollIntoView({behavior:'smooth'});
+
+const medRef = {
+  'paracetamol': "Paracetamol is commonly used to reduce fever and mild pain. Typically taken as directed on the pack or by your doctor; avoid combining with other paracetamol-containing products.",
+  'amoxicillin': "Amoxicillin is an antibiotic used for certain bacterial infections. Take the full course exactly as your doctor prescribed, even if you feel better early.",
+  'cetirizine': "Cetirizine is an antihistamine commonly used for allergy symptoms. Usually taken once daily as directed; may cause mild drowsiness in some people.",
+  'ibuprofen': "Ibuprofen is used for pain, inflammation, and fever. Best taken with food; your doctor may advise against it if you have certain stomach or kidney conditions."
+};
+document.getElementById('medUnlockBtn').onclick = ()=>{
+  const val = document.getElementById('medInput').value.trim().toLowerCase();
+  const resultBox = document.getElementById('medResult');
+  if(!val) return;
+  const info = medRef[val];
+  resultBox.textContent = info
+    ? "Reference only — " + info + " Always follow your doctor's specific instructions over this general note."
+    : "I don't have a reference note for that one in this demo, but in the full version this would pull verified drug information — always follow what your doctor told you.";
+  resultBox.classList.add('show');
+};
+
+document.getElementById('downloadBtn').onclick = ()=>{
+  const lines = [
+    "ACP HEALTH — VISIT PREP SUMMARY","================================","",
+    "Main concern: " + (answers.step0 || '-'),
+    "Duration: " + (answers.step1 || '-'),
+    "Self-reported severity: " + (answers.step2 || '-'),"",
+    "Suggested urgency: " + (tierBadgeText.textContent),"",
+    "Notes for your doctor:",
+    "- Describe exactly when symptoms started and how they've changed",
+    "- Mention any medication already taken",
+    "- Bring this summary to your appointment","",
+    "This summary is informational only and was not generated by a medical professional."
+  ];
+  const blob = new Blob([lines.join("\\n")], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'visit-prep-summary.txt';
+  a.click();
+};
+
+// ---- Beta gate logic ----
+// Demo-only invite codes. In production these are issued per-user server-side,
+// single-use or expiring, and checked against a real backend — not hardcoded client-side.
+const VALID_CODES = ['ACPBETA01', 'ACPBETA02', 'FOUNDER'];
+
+const inviteCodeInput = document.getElementById('inviteCode');
+const agreeCheck = document.getElementById('agreeCheck');
+const enterBtn = document.getElementById('enterBtn');
+const gateError = document.getElementById('gateError');
+const gateOverlay = document.getElementById('gateOverlay');
+const mainApp = document.getElementById('mainApp');
+const betaRibbon = document.getElementById('betaRibbon');
+
+function refreshEnterState(){
+  enterBtn.disabled = !(inviteCodeInput.value.trim().length > 0 && agreeCheck.checked);
+}
+inviteCodeInput.addEventListener('input', refreshEnterState);
+agreeCheck.addEventListener('change', refreshEnterState);
+
+enterBtn.addEventListener('click', ()=>{
+  const code = inviteCodeInput.value.trim().toUpperCase();
+  if(!VALID_CODES.includes(code)){
+    gateError.classList.add('show');
+    return;
+  }
+  gateError.classList.remove('show');
+  gateOverlay.classList.add('hidden');
+  mainApp.classList.add('unlocked');
+  betaRibbon.style.display = 'block';
+
+  // start the chat flow only once unlocked
+  addMsg(flow[0].bot, 'bot');
+  setQuickReplies(flow[0].options);
+});
+
+inviteCodeInput.addEventListener('keydown', e=>{
+  if(e.key === 'Enter' && !enterBtn.disabled) enterBtn.click();
+});
+
+/* =========================================================
+   BACKEND SIMULATION LAYER
+   Stands in for the real Express + PostgreSQL backend
+   (acp-health-backend/). Uses the artifact's persistent
+   key-value storage instead of a real database so this demo
+   shows genuine end-to-end behavior: a triage decision saved
+   here shows up in the clinician queue below, and survives
+   a page reload — same shape as the real API, different store.
+   Data here is SHARED (shared:true) so both the patient view
+   and clinician view in this demo see the same records.
+   ========================================================= */
+
+function uid(){ return crypto.randomUUID(); }
+
+// Mirrors src/services/triageRules.js exactly (same version tag, same logic)
+const RULE_VERSION = 'v1-draft-2026-07-01';
+const RED_FLAG_KEYWORDS = ['chest pain','chest tightness',"can't breathe",'difficulty breathing','severe bleeding','unconscious','stroke','slurred speech','face drooping'];
+
+function runTriageEngine(inputs){
+  const symptom = (inputs.primarySymptom || '').toLowerCase();
+  const severity = (inputs.severity || '').toLowerCase();
+  const hasRedFlag = RED_FLAG_KEYWORDS.some(kw => symptom.includes(kw)) ||
+    severity.includes('scary') || severity.includes('getting worse fast');
+  if(hasRedFlag) return { tier:'emergency', ruleVersion:RULE_VERSION, reason:'red_flag_match' };
+  if(severity.includes('severe') || severity.includes('moderate')) return { tier:'urgent', ruleVersion:RULE_VERSION, reason:'severity_moderate_or_severe' };
+  return { tier:'self_care', ruleVersion:RULE_VERSION, reason:'no_red_flag_mild_severity' };
+}
+
+async function persistTriage(conversationInputs){
+  const result = runTriageEngine(conversationInputs);
+  const record = {
+    id: uid(),
+    tier: result.tier,
+    ruleVersion: result.ruleVersion,
+    rawInputs: conversationInputs,
+    createdAt: new Date().toISOString(),
+    review: null // filled in by a clinician later
+  };
+  try{
+    const idxRes = await window.storage.get('triage:index', true).catch(()=>null);
+    const idx = idxRes ? JSON.parse(idxRes.value) : [];
+    idx.unshift(record.id);
+    await window.storage.set('triage:index', JSON.stringify(idx), true);
+    await window.storage.set('triage:' + record.id, JSON.stringify(record), true);
+  }catch(e){ console.error('storage error', e); }
+  return { ...result, triageId: record.id };
+}
+
+async function loadReviewQueue(){
+  const container = document.getElementById('reviewQueue');
+  container.innerHTML = '<div class="empty-queue">Loading queue…</div>';
+  let idx = [];
+  try{
+    const idxRes = await window.storage.get('triage:index', true);
+    idx = idxRes ? JSON.parse(idxRes.value) : [];
+  }catch(e){ idx = []; }
+
+  if(idx.length === 0){
+    container.innerHTML = '<div class="empty-queue">No triage decisions logged yet. Try the patient view first — every result you generate there will show up here.</div>';
+    return;
+  }
+
+  const records = [];
+  for(const id of idx){
+    try{
+      const r = await window.storage.get('triage:' + id, true);
+      if(r) records.push(JSON.parse(r.value));
+    }catch(e){}
+  }
+
+  container.innerHTML = '';
+  const tierColors = { emergency:'red', urgent:'amber', self_care:'green' };
+  const tierLabels = { emergency:'Emergency', urgent:'Urgent', self_care:'Self-care' };
+
+  records.forEach(rec=>{
+    const div = document.createElement('div');
+    div.className = 'queue-item';
+    const color = tierColors[rec.tier];
+    const inputs = rec.rawInputs || {};
+    div.innerHTML = `
+      <div class="queue-head">
+        <span class="queue-tier tier-badge ${color}">${tierLabels[rec.tier]}</span>
+        <span class="queue-time">${new Date(rec.createdAt).toLocaleString()} · rule ${rec.ruleVersion}</span>
+      </div>
+      <div class="queue-inputs">
+        <b>Reported:</b> ${inputs.primarySymptom || '—'}<br>
+        <b>Duration:</b> ${inputs.duration || '—'} &nbsp; <b>Severity:</b> ${inputs.severity || '—'}
+      </div>
+      <div class="queue-actions" data-id="${rec.id}">
+        ${rec.review ? `<span class="reviewed-tag">Reviewed — ${rec.review.agreed ? 'confirmed' : 'corrected to ' + tierLabels[rec.review.correctedTier]}</span>`
+          : `
+          <button class="btn btn-primary agree-btn">Confirm tier is correct</button>
+          <select class="queue-select correct-select">
+            <option value="">Correct to…</option>
+            <option value="emergency">Emergency</option>
+            <option value="urgent">Urgent</option>
+            <option value="self_care">Self-care</option>
+          </select>
+          <button class="btn btn-ghost correct-btn">Submit correction</button>
+        `}
+      </div>
+    `;
+    container.appendChild(div);
+
+    if(!rec.review){
+      div.querySelector('.agree-btn').onclick = ()=> submitReview(rec.id, true, null);
+      div.querySelector('.correct-btn').onclick = ()=>{
+        const val = div.querySelector('.correct-select').value;
+        if(!val){ return; }
+        submitReview(rec.id, false, val);
+      };
+    }
+  });
+}
+
+async function submitReview(triageId, agreed, correctedTier){
+  try{
+    const r = await window.storage.get('triage:' + triageId, true);
+    const rec = JSON.parse(r.value);
+    rec.review = { agreed, correctedTier, reviewedAt: new Date().toISOString() };
+    await window.storage.set('triage:' + triageId, JSON.stringify(rec), true);
+    loadReviewQueue();
+  }catch(e){ console.error(e); }
+}
+
+// View switcher
+document.getElementById('viewSwitch').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-view]');
+  if(!btn) return;
+  document.querySelectorAll('#viewSwitch button').forEach(b=> b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('patientView').classList.toggle('active', btn.dataset.view === 'patient');
+  document.getElementById('clinicianView').classList.toggle('active', btn.dataset.view === 'clinician');
+  document.getElementById('appointmentsView').classList.toggle('active', btn.dataset.view === 'appointments');
+  if(btn.dataset.view === 'clinician') loadReviewQueue();
+  if(btn.dataset.view === 'appointments') loadAppointments();
+});
+
+/* =========================================================
+   DOCTOR BOOKING SIMULATION
+   Mirrors POST /api/appointments + the Stripe webhook handler
+   in the real backend (doctors table, fee split, appointment
+   status transitions). Zoom/Stripe/SendGrid calls are stubbed
+   here since this preview has no live API keys — the matching,
+   fee-split math, and data model are the real logic.
+   ========================================================= */
+
+const DOCTORS = [
+  { id:'doc_1', name:'Dr. Priya Anand', specialty:'Family Medicine', feeCents:6500, currency:'CAD' },
+  { id:'doc_2', name:'Dr. James McCulloch', specialty:'Family Medicine', feeCents:5800, currency:'CAD' },
+  { id:'doc_3', name:'Dr. Elena Novak', specialty:'Cardiology', feeCents:9500, currency:'CAD' },
+  { id:'doc_4', name:'Dr. Samuel Osei', specialty:'Gastroenterology', feeCents:8800, currency:'CAD' },
+  { id:'doc_5', name:'Dr. Mei Lin', specialty:'Respiratory', feeCents:8200, currency:'CAD' },
+  { id:'doc_6', name:'Dr. Aditya Rao', specialty:'ENT', feeCents:7900, currency:'CAD' },
+];
+
+// Mirrors src/services/specialtyMatch.js exactly — keyword-based routing to
+// the right KIND of doctor. The doctor still does the actual diagnosis.
+const SPECIALTY_KEYWORDS = [
+  { specialty:'Cardiology', keywords:['chest pain','chest tightness','palpitations','heart racing'] },
+  { specialty:'Gastroenterology', keywords:['stomach pain','nausea','vomiting','diarrhea','abdominal'] },
+  { specialty:'Respiratory', keywords:['cough','wheezing','shortness of breath','difficulty breathing'] },
+  { specialty:'ENT', keywords:['sore throat','ear pain','earache','sinus'] },
+];
+function matchSpecialty(primarySymptom){
+  const text = (primarySymptom || '').toLowerCase();
+  for(const entry of SPECIALTY_KEYWORDS){
+    if(entry.keywords.some(kw => text.includes(kw))) return entry.specialty;
+  }
+  return 'Family Medicine';
+}
+
+function pickDoctor(){
+  const specialty = matchSpecialty(currentTriage?.inputs?.primarySymptom || '');
+  const pool = DOCTORS.filter(d => d.specialty === specialty);
+  return pool.length ? pool[Math.floor(Math.random()*pool.length)] : DOCTORS[0];
+}
+const PLATFORM_FEE_PERCENT = 8;
+function initials(name){
+  return name.replace('Dr. ','').split(' ').map(w=>w[0]).join('').toUpperCase();
+}
+function money(cents, currency){
+  return (cents/100).toLocaleString(undefined, {style:'currency', currency});
+}
+
+let matchedDoctor = null;
+
+function renderDoctorMatch(){
+  matchedDoctor = pickDoctor();
+  const platformFeeCents = Math.round(matchedDoctor.feeCents * (PLATFORM_FEE_PERCENT/100));
+  const doctorPayoutCents = matchedDoctor.feeCents - platformFeeCents;
+
+  document.getElementById('doctorMatch').innerHTML = `
+    <div class="doctor-row">
+      <div class="doctor-avatar">${initials(matchedDoctor.name)}</div>
+      <div>
+        <div class="doctor-name">${matchedDoctor.name}</div>
+        <div class="doctor-spec">${matchedDoctor.specialty} · licensed in ON, Canada · available now</div>
+      </div>
+    </div>`;
+
+  document.getElementById('feeBreakdown').innerHTML = `
+    <div class="fee-row"><span>Consultation fee</span><span>${money(matchedDoctor.feeCents, matchedDoctor.currency)}</span></div>
+    <div class="fee-row"><span>Platform fee (${PLATFORM_FEE_PERCENT}%)</span><span>${money(platformFeeCents, matchedDoctor.currency)}</span></div>
+    <div class="fee-row"><span>Goes to doctor</span><span>${money(doctorPayoutCents, matchedDoctor.currency)}</span></div>
+    <div class="fee-row total"><span>You pay</span><span>${money(matchedDoctor.feeCents, matchedDoctor.currency)}</span></div>
+  `;
+
+  document.getElementById('payBtn').onclick = ()=> handlePayment(matchedDoctor, platformFeeCents, doctorPayoutCents);
+}
+
+async function handlePayment(doctor, platformFeeCents, doctorPayoutCents){
+  const payBtn = document.getElementById('payBtn');
+  payBtn.disabled = true;
+  payBtn.textContent = 'Processing payment…';
+
+  // In production: Stripe.js collects the card via Elements, confirms the
+  // PaymentIntent client-side, and the webhook (src/routes/appointments.js)
+  // is what actually flips this to 'confirmed' server-side — never trust
+  // a client-side "success" alone in the real system.
+  await new Promise(r => setTimeout(r, 1400));
+
+  const appointmentId = crypto.randomUUID();
+  const scheduledAt = new Date(Date.now() + 15*60000);
+  const zoomJoinUrl = `https://zoom.us/j/${Math.floor(1000000000 + Math.random()*8999999999)}`;
+
+  const appointment = {
+    id: appointmentId,
+    doctor,
+    inputs: currentTriage?.inputs || {},
+    tier: currentTriage?.tier || 'self_care',
+    platformFeeCents, doctorPayoutCents,
+    amountCents: doctor.feeCents,
+    currency: doctor.currency,
+    status: 'confirmed',
+    scheduledAt: scheduledAt.toISOString(),
+    zoomJoinUrl,
+    createdAt: new Date().toISOString()
+  };
+
+  try{
+    const idxRes = await window.storage.get('appt:index', true).catch(()=>null);
+    const idx = idxRes ? JSON.parse(idxRes.value) : [];
+    idx.unshift(appointmentId);
+    await window.storage.set('appt:index', JSON.stringify(idx), true);
+    await window.storage.set('appt:' + appointmentId, JSON.stringify(appointment), true);
+  }catch(e){ console.error(e); }
+
+  payBtn.disabled = false;
+  payBtn.textContent = 'Confirm & pay (demo)';
+
+  const tierLabels = { emergency:'Emergency', urgent:'Urgent', self_care:'Self-care' };
+  const box = document.getElementById('ticketBox');
+  box.innerHTML = `
+    <div class="ticket-row"><span>Appointment ID</span><b>${appointmentId.slice(0,8)}</b></div>
+    <div class="ticket-row"><span>Status</span><b>Confirmed</b></div>
+    <div class="ticket-row"><span>Scheduled</span><b>${scheduledAt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</b></div>
+    <div class="ticket-row"><span>Doctor payout</span><b>${money(doctorPayoutCents, doctor.currency)}</b></div>
+    <a class="zoom-link" href="${zoomJoinUrl}" target="_blank" rel="noopener">${zoomJoinUrl}</a>
+    <div class="email-preview">
+      <div class="ep-head">Email sent to ${doctor.name} &lt;${doctor.name.toLowerCase().replace('dr. ','').replace(' ','.')}@example-clinic.com&gt;</div>
+      <div class="ep-body">
+        <b>New consultation request — ${tierLabels[appointment.tier]}</b><br><br>
+        Reported concern: ${appointment.inputs.primarySymptom || '—'}<br>
+        Duration: ${appointment.inputs.duration || '—'} · Severity: ${appointment.inputs.severity || '—'}<br>
+        Zoom: ${zoomJoinUrl}<br>
+        Your payout: ${money(doctorPayoutCents, doctor.currency)} (auto-transferred via Stripe Connect)
+      </div>
+    </div>
+  `;
+  box.classList.add('show');
+  addMsg("You're booked — the doctor's been notified and your Zoom link is ready above.", 'bot');
+}
+
+async function loadAppointments(){
+  const container = document.getElementById('appointmentsList');
+  container.innerHTML = '<div class="empty-queue">Loading…</div>';
+  let idx = [];
+  try{
+    const idxRes = await window.storage.get('appt:index', true);
+    idx = idxRes ? JSON.parse(idxRes.value) : [];
+  }catch(e){ idx = []; }
+
+  if(idx.length === 0){
+    container.innerHTML = '<div class="empty-queue">No appointments booked yet. Complete a triage in the patient view and pay for a consultation to see it here.</div>';
+    return;
+  }
+
+  const records = [];
+  for(const id of idx){
+    try{
+      const r = await window.storage.get('appt:' + id, true);
+      if(r) records.push(JSON.parse(r.value));
+    }catch(e){}
+  }
+
+  container.innerHTML = '';
+  records.forEach(appt=>{
+    const div = document.createElement('div');
+    div.className = 'appt-item';
+    div.innerHTML = `
+      <div class="appt-head">
+        <span>${appt.doctor.name} · ${appt.doctor.specialty}</span>
+        <span class="status-pill">${appt.status}</span>
+      </div>
+      <div class="appt-meta">
+        Fee ${money(appt.amountCents, appt.currency)} · platform ${money(appt.platformFeeCents, appt.currency)} · doctor ${money(appt.doctorPayoutCents, appt.currency)}<br>
+        Booked ${new Date(appt.createdAt).toLocaleString()} · scheduled ${new Date(appt.scheduledAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+</script>
+</body>
+</html>
